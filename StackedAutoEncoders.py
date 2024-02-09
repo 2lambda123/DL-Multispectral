@@ -10,6 +10,26 @@ from LogisticRegression import LogisticRegression
 
 class StackedAutoEncoders(object):
     def __init__(self, np_rng, theano_rng=None, n_ins=784, hidden_layer_sizes=None, n_outs=10):
+        """This function initializes a deep autoencoder neural network with the given parameters. It creates multiple hidden layers with the specified sizes and connects them to form the autoencoder. The function also sets up a logistic regression layer at the end for fine-tuning.
+        Parameters:
+            - np_rng (numpy.random.RandomState): A random number generator for initializing the weights of the network.
+            - theano_rng (theano.tensor.shared_randomstreams.RandomStreams): A random number generator for the autoencoder layers.
+            - n_ins (int): Number of input units.
+            - hidden_layer_sizes (list of ints): Sizes of the hidden layers. If not specified, default values of [500, 500] are used.
+            - n_outs (int): Number of output units.
+        Returns:
+            - None
+        Processing Logic:
+            - If hidden_layer_sizes is not specified, default values are used.
+            - The sigmoid_layers, dA_layers, and params lists are initialized.
+            - The number of layers is calculated and asserted to be greater than 0.
+            - If theano_rng is not specified, a random number generator is created.
+            - The input and output variables are created.
+            - For each layer, the input and output sizes are determined and a HiddenLayer and AutoEncoder object are created.
+            - The parameters of each layer are added to the params list.
+            - A logistic regression layer is created and its parameters are added to the params list.
+            - The cost and error functions are calculated for the logistic regression layer."""
+        
         hidden_layer_sizes = [500, 500] if hidden_layer_sizes is None else hidden_layer_sizes
         
         self.sigmoid_layers = []
@@ -52,6 +72,24 @@ class StackedAutoEncoders(object):
         
         
     def pretraining_functions(self, train_set_x, batch_size):
+        """This function creates pretraining functions for a deep autoencoder model.
+        Parameters:
+            - self (object): The deep autoencoder model.
+            - train_set_x (numpy array): The training dataset.
+            - batch_size (int): The batch size for training.
+        Returns:
+            - pretrain_fns (list): A list of pretraining functions for each layer of the deep autoencoder model.
+        Processing Logic:
+            - Creates a Theano scalar variable for the batch index.
+            - Creates Theano scalar variables for the corruption level and learning rate.
+            - Defines the beginning and end of each batch.
+            - Initializes an empty list for the pretraining functions.
+            - Loops through each layer of the deep autoencoder model.
+            - Calculates the cost and updates for each layer.
+            - Creates a Theano function for each layer with inputs, outputs, and updates.
+            - Appends the function to the pretrain_fns list.
+            - Returns the list of pretraining functions."""
+        
         
         index = T.lscalar(name='index')
         corruption_level = T.scalar('corruption')
@@ -75,6 +113,23 @@ class StackedAutoEncoders(object):
         
         
     def finetuning_functions(self, datasets, batch_size, learning_rate):
+        """Finetunes the parameters of a neural network using a given dataset, batch size, and learning rate.
+        Parameters:
+            - datasets (tuple): A tuple containing the training, validation, and test sets.
+            - batch_size (int): The size of each batch used for training.
+            - learning_rate (float): The learning rate used for updating the parameters.
+        Returns:
+            - train_fn (theano.function): A function that performs one iteration of training on the given dataset.
+            - valid_score (list): A list of validation errors for each batch.
+            - test_score (list): A list of test errors for each batch.
+        Processing Logic:
+            - Retrieves the training, validation, and test sets from the given dataset.
+            - Calculates the number of batches for the validation and test sets.
+            - Defines a function for updating the parameters using the given learning rate.
+            - Defines functions for calculating the errors on the validation and test sets.
+            - Defines functions for calculating the overall validation and test scores.
+            - Returns the training function, validation scores, and test scores."""
+        
         
         (train_set_x, train_set_y) = datasets[0]
         (valid_set_x, valid_set_y) = datasets[1]
