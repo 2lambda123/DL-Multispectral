@@ -9,7 +9,8 @@ from LogisticRegression import LogisticRegression
 
 
 class StackedAutoEncoders(object):
-    def __init__(self, np_rng, theano_rng=None, n_ins=784, hidden_layer_sizes=[500, 500], n_outs=10):
+    def __init__(self, np_rng, theano_rng=None, n_ins=784, hidden_layer_sizes=None, n_outs=10):
+        hidden_layer_sizes = [500, 500] if hidden_layer_sizes is None else hidden_layer_sizes
         
         self.sigmoid_layers = []
         self.dA_layers = []
